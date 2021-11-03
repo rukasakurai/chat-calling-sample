@@ -1,32 +1,24 @@
 import { AzureCommunicationTokenCredential } from '@azure/communication-common';
 import { ChatClient } from '@azure/communication-chat';
 import {
-  CallComposite,
-  CallAdapter,
-  createAzureCommunicationCallAdapter,
   ChatComposite,
   ChatAdapter,
   createAzureCommunicationChatAdapter
 } from '@azure/communication-react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {CommunicationIdentityClient } from '@azure/communication-identity'
-import { unwatchFile } from 'fs';
+import CallCompositeScreen from './CallComposite';
 
 function App(): JSX.Element {
 
   //DO NOT DO THIS ON CLIENT CODE. THIS SHOULD BE DONE IN TRUSTED SERVICE
-  const endpointUrl = '<Azure Communication Services Resource Endpoint>';
+  const endpointUrl = '';
   const connectionString = '';
 
-  const displayName = '<Display Name>';
+  const displayName = 'David';
 
   const [userId, setUserId] = useState<string>();
   const [credential, setCredential] = useState<AzureCommunicationTokenCredential>();
-
-  //Calling Variables
-  //For Group Id, developers can pass any GUID they can generate
-  const groupId = '8805799d-0f59-4873-a2d5-b339f26e447c';
-  const [callAdapter, setCallAdapter] = useState<CallAdapter>();
 
   //Chat Variables
   const [threadId, setThreadId] = useState<string>();
@@ -37,34 +29,45 @@ function App(): JSX.Element {
     const createUser = async (): Promise<void> => {
       const identityClient = new CommunicationIdentityClient(connectionString);
       await identityClient.createUserAndToken(['voip', 'chat']).then( async (res) => {
+        console.log(res.token)
         setUserId(res.user.communicationUserId);
         setCredential(new AzureCommunicationTokenCredential(res.token));
-        if(credential != undefined && userId != undefined){
-          let chatClient = new ChatClient(endpointUrl, credential);
-          let chatThread = await chatClient.createChatThread(
-            {
-              topic:"Test Thread"
-            },
-            {
-              participants: [
-                {
-                  id: {communicationUserId: userId},
-                  displayName: displayName
-                }
-              ]
-            }
-          ).then((res) => {
-            setThreadId(res.chatThread?.id)
-          })
-        }
+        console.log(userId);
+        console.log(credential);
       })
     }
     createUser();
   }, []);
 
+  //DO NOT DO THIS ON CLIENT CODE. THIS SHOULD BE DONE IN TRUSTED SERVICE
+  useEffect(() => {
+    const createThread = async (): Promise<void> => {
+      if(credential !== undefined && userId !== undefined){
+        let chatClient = new ChatClient(endpointUrl, credential);
+        let chatThread = await chatClient.createChatThread(
+          {
+            topic:"Test Thread"
+          },
+          {
+            participants: [
+              {
+                id: {communicationUserId: userId},
+                displayName: displayName
+              }
+            ]
+          }
+        ).then((res) => {
+          setThreadId(res.chatThread?.id)
+        })
+      }
+    }
+    createThread();
+  }, [credential, userId])
+
+  //DO NOT DO THIS ON CLIENT CODE. THIS SHOULD BE DONE IN TRUSTED SERVICE
   useEffect(() => {
     const createAdapter = async (): Promise<void> => {
-      if(credential != undefined && userId != undefined && threadId != undefined){
+      if(credential !== undefined && userId !== undefined && threadId !== undefined){
       setChatAdapter(
         await createAzureCommunicationChatAdapter({
           endpointUrl,
@@ -74,24 +77,24 @@ function App(): JSX.Element {
           threadId
         })
       );
-      setCallAdapter(
-        await createAzureCommunicationCallAdapter({
-          userId: { communicationUserId: userId },
-          displayName,
-          credential,
-          locator: { groupId }
-        })
-      );
       }
     };
     createAdapter();
-  }, [credential, userId, threadId]);
+  }, [threadId]);
 
-  if (!!callAdapter && !!chatAdapter) {
+  const [call, setCall] = useState(false);
+
+  if (!!chatAdapter && userId !== undefined && credential !== undefined && threadId !== undefined) {
     return (
       <>
-        <ChatComposite adapter={chatAdapter} />
-        <CallComposite adapter={callAdapter} />
+        <button onClick={() => setCall(true)}>
+          Call
+        </button>
+        { !call && <div style={{height:'90vh'}}>
+          <ChatComposite adapter={chatAdapter}/>
+        </div> }
+        {call && <CallCompositeScreen userId={userId} credential={credential} threadId={threadId} endpoint={endpointUrl}/>}
+
       </>
     );
   }
