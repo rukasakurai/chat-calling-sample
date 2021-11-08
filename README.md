@@ -18,3 +18,6 @@
 ## Publish to Azure
 1. Right click the project and select Publish.
 2. Create a new publish profile and select your app name, Azure subscription, resource group and etc.
+
+## Issues
+If you run into issues or questions, please feel free to submit a GitHub issue or contact me directly
