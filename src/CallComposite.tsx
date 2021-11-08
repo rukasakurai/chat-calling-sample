@@ -21,7 +21,7 @@ interface CompositeProps {
 function CallCompositeScreen(props: CompositeProps): JSX.Element {
 
   //DO NOT DO THIS ON CLIENT CODE. THIS SHOULD BE DONE IN TRUSTED SERVICE
-  const displayName = 'David';
+  const displayName = 'YourName';
 
   //Calling Variables
   //For Group Id, developers can pass any GUID they can generate
