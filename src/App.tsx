@@ -15,7 +15,7 @@ function App(): JSX.Element {
   const endpointUrl = '';
   const connectionString = '';
 
-  const displayName = 'David';
+  const displayName = 'YourName';
 
   const [userId, setUserId] = useState<string>();
   const [credential, setCredential] = useState<AzureCommunicationTokenCredential>();
