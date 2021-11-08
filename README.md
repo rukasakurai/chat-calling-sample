@@ -20,4 +20,4 @@
 2. Create a new publish profile and select your app name, Azure subscription, resource group and etc.
 
 ## Issues
-If you run into issues or questions, please feel free to submit a GitHub issue or contact me directly
+If you run into issues deploying the sample, please feel free to submit a GitHub issue or contact me directly
